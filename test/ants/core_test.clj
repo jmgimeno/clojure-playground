@@ -2,8 +2,7 @@
   (:require [clojure.test :refer :all]
             [ants.core :refer :all]))
 
-(deftest ant-moves-left
-  (let [ant (ma)])
+(deftest ant-moves-leftRemoved stupid line
   (testing
     (is (= 1 2))))
 
