@@ -1,27 +1,69 @@
-(ns hont.core)
+(ns hont.core
+  (:require [clojure.pprint :refer [pprint]]))
 
 (defn votes-seq [votes]
   (map / (repeat votes) (iterate inc 1)))
 
 (defn quotients [results]
-  (into {}
-	(map (fn [[party votes]] 
-	       [party (votes-seq votes)])
-	     results)))
+  (zipmap (keys results)
+          (map votes-seq (vals results))))
+
+(defn first-quotient [[_ [fs & _]]] fs)
 
 (defn find-max [quotients]
-  (reduce (fn [[_ [fs1 & _] :as fst]
-	       [_ [fs2 & _] :as snd]]
-	    (if (>= fs1 fs2) fst snd)) 
-	  quotients))
+  (reduce (partial max-key first-quotient)
+          quotients))
+
+(defn next-state [[_ quotients]]
+  (let [[party _] (find-max quotients)
+        quotients (update-in quotients [party] rest)]
+    [party quotients]))
+
+(defn into-state [quotients]
+  (next-state [nil quotients]))
 
 (defn hont-seq [quotients]
-  (lazy-seq
-   (let [[party votes-seq] (find-max quotients)]
-     (cons party (hont-seq (assoc quotients party (rest votes-seq)))))))
+  (iterate next-state (into-state quotients)))
 
 (defn hont [results seats]
-  (let [quots (quotients results)
-	hseq (hont-seq quots)]
-    (frequencies
-     (take seats hseq))))
+  (->> results
+       quotients
+       hont-seq
+       (map first)
+       (take seats)
+       frequencies))
+
+(comment
+
+  (set! *print-length* 10)
+
+  (def european2014
+    {:pp   4074363
+     :psoe 3596324
+     :lip  1562597
+     :pod  1245948
+     :upyd 1015994
+     :ceu   850690
+     :epdd  629071
+     :cs    495114
+     :lpd   324534
+     :pe    299884})
+
+  (def seats 54)
+
+  (def results
+    {:pp   16
+     :psoe 14
+     :lip   6
+     :pod   5
+     :upyd  4
+     :ceu   3
+     :epdd  2
+     :cs    2
+     :lpd   1
+     :pe    1})
+
+  (= results (hont european2014 seats))
+
+  )
+
