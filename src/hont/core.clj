@@ -14,13 +14,17 @@
   (reduce (partial max-key first-quotient)
           quotients))
 
-(defn next-state [[_ quotients]]
+(defn next-state [[assigned quotients]]
   (let [[party _] (find-max quotients)
         quotients (update-in quotients [party] rest)]
-    [party quotients]))
+    [(conj assigned party) quotients]))
 
 (defn into-state [quotients]
-  (next-state [nil quotients]))
+  (next-state [[] quotients]))
+
+(defn not-enough [seats]
+  (fn [[assigned _]]
+    (< (count assigned) seats)))
 
 (defn hont-seq [quotients]
   (iterate next-state (into-state quotients)))
@@ -29,8 +33,8 @@
   (->> results
        quotients
        hont-seq
-       (map first)
-       (take seats)
+       (drop-while (not-enough seats))
+       ffirst
        frequencies))
 
 (comment
