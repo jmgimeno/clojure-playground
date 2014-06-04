@@ -14,13 +14,12 @@
   (reduce (partial max-key first-quotient)
           quotients))
 
-(defn next-state [[assigned quotients]]
-  (let [[party _] (find-max quotients)
-        quotients (update-in quotients [party] rest)]
-    [(conj assigned party) quotients]))
-
 (defn into-state [quotients]
-  (next-state [[] quotients]))
+  [[] quotients])
+
+(defn next-state [[assigned quotients]]
+  (let [[party biggest] (find-max quotients)]
+    [(conj assigned party) (assoc quotients party (rest biggest))]))
 
 (defn not-enough [seats]
   (fn [[assigned _]]
