@@ -1,6 +1,6 @@
-(ns clojure-conj-talk.core
+(ns clojure-conj-core-async-talk.core
   (:refer-clojure :exclude [map reduce into partition partition-by take merge])
-  (:require [clojure.core.async :refer :all :as async]
+  (:require [clojure.core.async :as async :refer :all]
             [clojure.pprint :refer [pprint]]
             [cheshire.core :as cheshire]))
 
