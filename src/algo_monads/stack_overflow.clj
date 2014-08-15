@@ -18,9 +18,13 @@
 
 ;;(add (range 1 10000)) ;; stack overflow
 
+(defn m-result-cont [v] (fn [c] [c v ::cont]))
+
+(defn m-bind-cont [mv f] (fn [c] [mv (fn [v] [(f v) c ::cont ]) ::cont]))
+
 (m/defmonad cont-tramp-m
-          [m-result (:m-result m/cont-m)
-           m-bind (:m-bind m/cont-m)])
+          [m-result m-result-cont
+           m-bind  m-bind-cont])
 
 (defn call-cc-tramp [f]
   (fn [c] [(f (fn [v] (fn [_] [c v ::cont]))) c ::cont]))
