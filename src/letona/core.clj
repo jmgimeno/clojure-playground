@@ -19,10 +19,11 @@
   (get state end))
 
 (def final-state
-  (first
-    (drop-while
-      (complement final-state?)
-      (iterate next-state (init-state start)))))
+  (->> start
+       init-state
+       (iterate next-state)
+       (drop-while (complement final-state?))
+       first))
 
 (pprint (get final-state end))
 
